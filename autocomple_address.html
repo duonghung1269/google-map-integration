@@ -100,6 +100,7 @@
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
       var placeSearch, autocomplete;
+	  var selected_lat, selected_lng;
       var componentForm = {
         street_number: 'short_name',
         route: 'long_name',
@@ -109,6 +110,22 @@
         postal_code: 'short_name'
       };
 
+	  // init coords and polygons for 3 zones
+	  var marinZoneCoords = [
+		{lat: 0, lng: 0}
+	  ];
+	  
+	var marinZonePolygon = new google.maps.Polygon({
+		paths: marinZoneCoords,
+		strokeColor: '#FF0000',
+		strokeOpacity: 0.8,
+		strokeWeight: 2,
+		fillColor: '#FF0000',
+		fillOpacity: 0.35
+	  });
+		
+		 
+	  
       function initAutocomplete() {
         // Create the autocomplete object, restricting the search to geographical
         // location types.
@@ -121,7 +138,7 @@
         autocomplete.addListener('place_changed', fillInAddress);
       }
 
-      function fillInAddress() {
+      function fillInAddress() {				  
         // Get the place details from the autocomplete object.
         var place = autocomplete.getPlace();
 
@@ -139,6 +156,11 @@
             document.getElementById(addressType).value = val;
           }
         }
+		
+		// get lat, lng
+		var location = place.geometry.location;
+		selected_lat = location.lat();
+		selected_lng = location.lng();
       }
 
       // Bias the autocomplete object to the user's geographical location,
