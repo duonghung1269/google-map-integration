@@ -24,8 +24,15 @@
         position: absolute;
         top: 0px;
         left: 0px;
-        width: 99%;
+        width: 80%;
       }
+	  #submit-button {
+		position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 19%;
+	  }
+	  
       .label {
         text-align: right;
         font-weight: bold;
@@ -61,70 +68,93 @@
     <div id="locationField">
       <input id="autocomplete" placeholder="Enter your address"
              onFocus="geolocate()" type="text"></input>
+	  <button id="submit-button" onclick="submit();" >Submit</button>
     </div>
 
-    <table id="address">
-      <tr>
-        <td class="label">Street address</td>
-        <td class="slimField"><input class="field" id="street_number"
-              disabled="true"></input></td>
-        <td class="wideField" colspan="2"><input class="field" id="route"
-              disabled="true"></input></td>
-      </tr>
-      <tr>
-        <td class="label">City</td>
-        <td class="wideField" colspan="3"><input class="field" id="locality"
-              disabled="true"></input></td>
-      </tr>
-      <tr>
-        <td class="label">State</td>
-        <td class="slimField"><input class="field"
-              id="administrative_area_level_1" disabled="true"></input></td>
-        <td class="label">Zip code</td>
-        <td class="wideField"><input class="field" id="postal_code"
-              disabled="true"></input></td>
-      </tr>
-      <tr>
-        <td class="label">Country</td>
-        <td class="wideField" colspan="3"><input class="field"
-              id="country" disabled="true"></input></td>
-      </tr>
-    </table>
-
     <script>
-      // This example displays an address form, using the autocomplete feature
-      // of the Google Places API to help users fill in the information.
+		// This example requires the Places library. Include the libraries=places
+		// parameter when you first load the API. For example:
+		// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
-      // This example requires the Places library. Include the libraries=places
-      // parameter when you first load the API. For example:
-      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+		var placeSearch, autocomplete;
+		var selected_lat, selected_lng;
+		var componentForm = {
+			street_number: 'short_name',
+			route: 'long_name',
+			locality: 'long_name',
+			administrative_area_level_1: 'short_name',
+			country: 'long_name',
+			postal_code: 'short_name'
+		};
 
-      var placeSearch, autocomplete;
-	  var selected_lat, selected_lng;
-      var componentForm = {
-        street_number: 'short_name',
-        route: 'long_name',
-        locality: 'long_name',
-        administrative_area_level_1: 'short_name',
-        country: 'long_name',
-        postal_code: 'short_name'
-      };
-
-	  // init coords and polygons for 3 zones
-	  var marinZoneCoords = [
-		{lat: 0, lng: 0}
-	  ];
+		var marinZonePolygon, eastBayPolygon, sanFranciscoPolygon;
+		var redirectLocation = "www.sungotanning.com";
 	  
-	var marinZonePolygon = new google.maps.Polygon({
-		paths: marinZoneCoords,
-		strokeColor: '#FF0000',
-		strokeOpacity: 0.8,
-		strokeWeight: 2,
-		fillColor: '#FF0000',
-		fillOpacity: 0.35
-	  });
+	  // init coords and polygons for 3 zones
+		var marinZoneCoords = [			
+			{lat: 38.12375, lng: -122.61428},
+			{lat: 38.13887, lng: -122.5827},
+			{lat: 38.13779, lng: -122.55798},
+			{lat: 38.11511, lng: -122.52365},
+			{lat: 38.08485, lng: -122.51403},
+			{lat: 38.05349, lng: -122.50991},
+			{lat: 38.04484, lng: -122.49893},
+			{lat: 38.01672, lng: -122.49893},
+			{lat: 37.98858, lng: -122.444},
+			{lat: 37.92903, lng: -122.48107},
+			{lat: 37.87593, lng: -122.40829},
+			{lat: 37.84015, lng: -122.42065},
+			{lat: 37.83636, lng: -122.47352},
+			{lat: 37.82714, lng: -122.48931},
+			{lat: 37.86292, lng: -122.51747},
+			{lat: 37.87593, lng: -122.5518},
+			{lat: 37.89165, lng: -122.55935},
+			{lat: 37.90899, lng: -122.57514},
+			{lat: 37.93065, lng: -122.58338},
+			{lat: 37.94744, lng: -122.57171},
+			{lat: 37.97938, lng: -122.60948},
+			{lat: 38.0059, lng: -122.61291},
+			{lat: 38.04484, lng: -122.5978}
+		];
 		
-		 
+		var eastBayCoords = [
+			{lat: 37.97343, lng: -122.43438},
+			{lat: 37.97451, lng: -122.40417},
+			{lat: 38.01347, lng: -122.34512},
+			{lat: 37.99616, lng: -122.2998},
+			{lat: 37.9626, lng: -122.27783},
+			{lat: 37.93661, lng: -122.27508},
+			{lat: 37.90845, lng: -122.25997},
+			{lat: 37.88352, lng: -122.22427},
+			{lat: 37.85215, lng: -122.20745},
+			{lat: 37.8152, lng: -122.19131},
+			{lat: 37.7935, lng: -122.17483},
+			{lat: 37.75442, lng: -122.21191},
+			{lat: 37.749, lng: -122.25311},
+			{lat: 37.75877, lng: -122.29705},
+			{lat: 37.78699, lng: -122.34786},
+			{lat: 37.93661, lng: -122.41104},
+			{lat: 37.95827, lng: -122.43438}
+		];
+		
+		var sanFranciscoCoords = [
+			{lat: 37.78563, lng: -122.5209},
+			{lat: 37.79079, lng: -122.51094},
+			{lat: 37.79296, lng: -122.49034},
+			{lat: 37.80652, lng: -122.48451},
+			{lat: 37.81059, lng: -122.46288},
+			{lat: 37.81358, lng: -122.43301},
+			{lat: 37.81086, lng: -122.40005},
+			{lat: 37.79893, lng: -122.38254},
+			{lat: 37.75442, lng: -122.37602},
+			{lat: 37.75198, lng: -122.42408},
+			{lat: 37.72999, lng: -122.46837},
+			{lat: 37.71261, lng: -122.47077},
+			{lat: 37.70528, lng: -122.47318},
+			{lat: 37.69794, lng: -122.49824},
+			{lat: 37.69794, lng: -122.50923}
+		];
+		
 	  
       function initAutocomplete() {
         // Create the autocomplete object, restricting the search to geographical
@@ -136,31 +166,52 @@
         // When the user selects an address from the dropdown, populate the address
         // fields in the form.
         autocomplete.addListener('place_changed', fillInAddress);
+		
+		marinZonePolygon = new google.maps.Polygon({
+			paths: marinZoneCoords,
+			strokeColor: '#FF0000',
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: '#FF0000',
+			fillOpacity: 0.35
+		});
+		
+		eastBayPolygon = new google.maps.Polygon({
+			paths: eastBayCoords,
+			strokeColor: '#FF0000',
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: '#FF0000',
+			fillOpacity: 0.35
+		});
+		
+		sanFranciscoPolygon = new google.maps.Polygon({
+			paths: sanFranciscoCoords,
+			strokeColor: '#FF0000',
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: '#FF0000',
+			fillOpacity: 0.35
+		});
       }
 
       function fillInAddress() {				  
         // Get the place details from the autocomplete object.
         var place = autocomplete.getPlace();
-
-        for (var component in componentForm) {
-          document.getElementById(component).value = '';
-          document.getElementById(component).disabled = false;
-        }
-
-        // Get each component of the address from the place details
-        // and fill the corresponding field on the form.
-        for (var i = 0; i < place.address_components.length; i++) {
-          var addressType = place.address_components[i].types[0];
-          if (componentForm[addressType]) {
-            var val = place.address_components[i][componentForm[addressType]];
-            document.getElementById(addressType).value = val;
-          }
-        }
 		
 		// get lat, lng
-		var location = place.geometry.location;
-		selected_lat = location.lat();
-		selected_lng = location.lng();
+		var selectedLocation = place.geometry.location;		
+		
+		if (shapeContains(marinZonePolygon, selectedLocation)) {
+			redirectLocation = "http://www.sungotanning.com/#!bookmarin/tpm1h";
+		} else if (shapeContains(eastBayPolygon, selectedLocation)) {
+			redirectLocation = "http://www.sungotanning.com/#!booksf/c5ljh";
+		} else if (shapeContains(sanFranciscoPolygon, selectedLocation)) {
+			redirectLocation = "http://www.sungotanning.com/#!booksf/c5ljh";
+		} else {
+			redirectLocation = "http://www.sungotanning.com";
+		}
+				
       }
 
       // Bias the autocomplete object to the user's geographical location,
@@ -180,6 +231,19 @@
           });
         }
       }
+	  
+	  function shapeContains(shape, latLng) {
+		if (shape instanceof google.maps.Polygon) {
+			return google.maps.geometry.poly.containsLocation(latLng, shape);
+		}
+		
+		return false;
+	  }
+	  
+	  function submit() {
+		window.location = redirectLocation;		
+		return false;
+	  }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQtSzh0g0ARbEZMz4RKNHMkMvVznXaZjc&libraries=places&callback=initAutocomplete"
         async defer></script>
